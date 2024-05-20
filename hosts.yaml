@@ -1,0 +1,25 @@
+---
+- name: Добавление узлов в  /etc/hosts
+  hosts: all
+  become: yes
+  tasks:
+    - name: добавление node1-minio.local в /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        line: '185.26.120.30 node1-minio.local'
+        state: present
+        create: yes
+
+    - name: Добавление node2-minio.local в /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        line: '185.26.120.186 node2-minio.local'
+        state: present
+        create: yes  
+
+    - name: Добавление haproxy.local в /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        line: '185.26.120.182 haproxy.local'
+        state: present
+        create: yes 

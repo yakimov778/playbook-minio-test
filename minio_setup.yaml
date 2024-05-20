@@ -1,0 +1,92 @@
+---
+- name: Установка и настройка MinIO
+  hosts: nodes
+  become: yes
+
+  tasks:
+    - name: Скачивание MinIO сервер
+      get_url:
+        url: "https://dl.min.io/server/minio/release/linux-amd64/minio"
+        dest: "/usr/local/bin/minio"
+        mode: "0755"
+
+    - name: Скачивание MinIO клиент
+      get_url:
+        url: "https://dl.min.io/client/mc/release/linux-amd64/mc"
+        dest: "/usr/local/bin/mc"
+        mode: "0755"
+
+    - name: Создание группы minio-user
+      group:
+        name: "minio-user"
+        system: yes
+
+    - name: Создание пользователя minio-user
+      user:
+        name: "minio-user"
+        group: "minio-user"
+        system: yes
+        create_home: no
+
+    - name: Создание директории для сертификатов
+      file:
+        path: "/etc/minio/certs/CAs"
+        state: directory
+        owner: "minio-user"
+        group: "minio-user"
+        mode: "0755"
+
+    - name: Создание директории для данных MinIO
+      file:
+        path: "/mnt/minio"
+        state: directory
+        owner: "minio-user"
+        group: "minio-user"
+        mode: "0755"
+
+    - name: Измение владельца директории /etc/minio
+      file:
+        path: "/etc/minio"
+        state: directory
+        owner: "minio-user"
+        group: "minio-user"
+        recurse: yes
+
+    - name: Измение владельца директории /mnt/minio
+      file:
+        path: "/mnt/minio"
+        state: directory
+        owner: "minio-user"
+        group: "minio-user"
+        recurse: yes
+
+    - name: Скачивание systemd файла для MinIO
+      get_url:
+        url: "https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service"
+        dest: "/etc/systemd/system/minio.service"
+        mode: "0644"
+
+    - name: Создание файла окружения для MinIO
+      copy:
+        dest: "/etc/default/minio"
+        content: |
+          MINIO_VOLUMES="http://node{1...2}-minio.local:9000/mnt/minio/data1/minio"
+          MINIO_OPTS="--certs-dir /etc/minio/certs --console-address :9001"
+          MINIO_REGION="ru-central-1"
+          MINIO_ROOT_USER=admin
+          MINIO_ROOT_PASSWORD=adminadmin
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+    - name: Включение службы MinIO
+      systemd:
+        name: minio
+        enabled: yes
+        state: started
+
+    - name: Настройка подключения к MinIO
+      shell: /usr/local/bin/mc alias set minio http://node1-minio.local:9000 admin adminadmin
+
+    - name: Создание bucket
+      shell: /usr/local/bin/mc mb -p minio/bucket-test --region=ru-central-1

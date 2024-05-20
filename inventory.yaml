@@ -1,0 +1,14 @@
+nodes:
+  hosts:
+    minio1:
+      ansible_host: 185.26.120.30
+      ansible_user: root
+    minio2:
+      ansible_host: 185.26.120.186
+      ansible_user: root
+
+haproxy_s:
+  hosts:
+    haproxy:
+      ansible_host: 185.26.120.182
+      ansible_user: root

@@ -1,0 +1,26 @@
+---
+- name: Подготовка диска и точки монтирования DISK1
+  hosts: nodes
+  become: yes
+  tasks:
+    - name: Создание директории /mnt/minio/data1
+      ansible.builtin.file:
+        path: /mnt/minio/data1
+        state: directory
+        mode: '0755'
+
+    - name: Создание файловой системы на диске /dev/vdb label DISK1
+      ansible.builtin.command: mkfs.xfs -L DISK1 /dev/vdb
+      args:
+        creates: /dev/disk/by-label/DISK1
+
+    - name: Добавление точки монтирования DISK1 в /etc/fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        state: present
+        line: 'LABEL=DISK1      /mnt/minio/data1     xfs     defaults,noatime  0       2'
+        create: yes
+
+    - name: монтирование /etc/fstab
+      ansible.builtin.command: mount -a
+

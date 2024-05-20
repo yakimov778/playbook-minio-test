@@ -1,0 +1,15 @@
+---
+- name: Обновление системы с перезагрузкой
+  hosts: all
+  become: true
+  tasks:
+    - name: ansible.builtin.apt update
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: ansible.builtin.apt-get dist-upgrade
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Перезагрузка
+      ansible.builtin.reboot:
