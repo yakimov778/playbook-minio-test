@@ -13,13 +13,6 @@
     - name: Добавление node2-minio.local в /etc/hosts
       lineinfile:
         path: /etc/hosts
-        line: '185.26.120.186 node2-minio.local'
+        line: '185.26.120.182 node2-minio.local'
         state: present
         create: yes  
-
-    - name: Добавление haproxy.local в /etc/hosts
-      lineinfile:
-        path: /etc/hosts
-        line: '185.26.120.182 haproxy.local'
-        state: present
-        create: yes 
